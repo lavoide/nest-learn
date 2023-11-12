@@ -32,7 +32,7 @@ export class UsersService {
   update(id: number, user: UpdateUserDto) {
     const userIndex = this.users.findIndex((user) => user.id === id);
     if (userIndex > -1) {
-      this.users[userIndex] = user;
+      this.users[userIndex] = { id, ...user };
       return user;
     }
     throw new HttpException('User not found', HttpStatus.NOT_FOUND);
