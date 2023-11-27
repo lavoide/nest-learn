@@ -1,8 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserDto } from './user-dto';
-import { PartialType } from '@nestjs/mapped-types';
-
-export class CreateUserDto extends PartialType(UserDto) {
+export class CreateUserDto extends UserDto {
   @ApiProperty()
   name: string;
 
