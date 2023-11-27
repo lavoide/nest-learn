@@ -1,50 +1,65 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { User, Prisma } from '@prisma/client';
+import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class UsersService {
-  private lastUserId = 0;
-  private users: User[] = [];
+  constructor(private prisma: PrismaService) {}
 
-  create(user: CreateUserDto) {
-    const newUser = {
-      id: ++this.lastUserId,
-      ...user,
-    };
-    this.users.push(newUser);
-    return newUser;
+  async create(data: Prisma.UserCreateInput): Promise<User> {
+    try {
+      const user = this.prisma.user.create({
+        data,
+      });
+      return user;
+    } catch (err) {
+      throw new HttpException('Create Error', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  findAll() {
-    return this.users;
+  async findAll(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.UserWhereUniqueInput;
+    where?: Prisma.UserWhereInput;
+    orderBy?: Prisma.UserOrderByWithRelationInput;
+  }): Promise<User[]> {
+    const { skip, take, cursor, where, orderBy } = params;
+    return this.prisma.user.findMany({
+      skip,
+      take,
+      cursor,
+      where,
+      orderBy,
+    });
   }
 
-  findOne(id: number) {
-    const user = this.users.find((user) => user.id === id);
+  async findOne(
+    userWhereUniqueInput: Prisma.UserWhereUniqueInput,
+  ): Promise<User | null> {
+    const user = await this.prisma.user.findUnique({
+      where: userWhereUniqueInput,
+    });
     if (user) {
       return user;
     }
     throw new HttpException('User not found', HttpStatus.NOT_FOUND);
   }
 
-  update(id: number, user: UpdateUserDto) {
-    const userIndex = this.users.findIndex((user) => user.id === id);
-    if (userIndex > -1) {
-      this.users[userIndex] = { id, ...user };
-      return user;
-    }
-    throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+  async update(params: {
+    where: Prisma.UserWhereUniqueInput;
+    data: Prisma.UserUpdateInput;
+  }): Promise<User> {
+    const { where, data } = params;
+    return this.prisma.user.update({
+      data,
+      where,
+    });
   }
 
-  remove(id: number) {
-    const userIndex = this.users.findIndex((user) => user.id === id);
-    if (userIndex > -1) {
-      this.users.splice(userIndex, 1);
-      return 'User successfully deleted';
-    } else {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
+  async remove(where: Prisma.UserWhereUniqueInput): Promise<User> {
+    return this.prisma.user.delete({
+      where,
+    });
   }
 }
