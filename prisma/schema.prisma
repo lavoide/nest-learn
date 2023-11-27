@@ -18,10 +18,27 @@ model User {
 }
 
 model Book {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean? @default(false)
-  owner    User?    @relation(fields: [ownerId], references: [id])
-  ownerId  Int?
+  id           Int            @id @default(autoincrement())
+  title        String
+  content      String?
+  published    Boolean?       @default(false)
+  owner        User?          @relation(fields: [ownerId], references: [id])
+  ownerId      Int?
+  bookCategory BookCategory[]
+}
+
+model Category {
+  id           Int            @id @default(autoincrement())
+  name         String
+  bookCategory BookCategory[]
+}
+
+model BookCategory {
+  id         Int       @id @default(autoincrement())
+  book       Book?     @relation(fields: [bookId], references: [id])
+  bookId     Int?
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId Int?
+
+  @@unique([bookId, categoryId])
 }
