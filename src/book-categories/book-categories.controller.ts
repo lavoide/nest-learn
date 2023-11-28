@@ -1,16 +1,6 @@
-// book-categories.controller.ts
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { BookCategoriesService } from './book-categories.service';
 import { CreateBookCategoryDto } from './dto/create-book-category.dto';
-import { UpdateBookCategoryDto } from './dto/update-book-category.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { BookCategory } from '@prisma/client';
 
@@ -21,28 +11,12 @@ export class BookCategoriesController {
 
   @Post()
   create(@Body() createBookCategoryDto: CreateBookCategoryDto) {
-    return this.bookCategoriesService.create(createBookCategoryDto);
+    return this.bookCategoriesService.addBookToCategory(createBookCategoryDto);
   }
 
   @Get()
   findAll(): Promise<BookCategory[]> {
     return this.bookCategoriesService.findAll({});
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string): Promise<BookCategory> {
-    return this.bookCategoriesService.findOne({ id: Number(id) });
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateBookCategoryDto: UpdateBookCategoryDto,
-  ): Promise<BookCategory> {
-    return this.bookCategoriesService.update({
-      where: { id: Number(id) },
-      data: updateBookCategoryDto,
-    });
   }
 
   @Delete(':id')
