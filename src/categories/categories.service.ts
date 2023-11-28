@@ -1,20 +1,16 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Category, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
+import { CreateCategoryDto } from './dto/create-category.dto';
 
 @Injectable()
 export class CategoriesService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: Prisma.CategoryCreateInput): Promise<Category> {
-    try {
-      const category = this.prisma.category.create({
-        data,
-      });
-      return category;
-    } catch (err) {
-      throw new HttpException('Create Error', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async create(data: CreateCategoryDto): Promise<Category> {
+    return this.prisma.category.create({
+      data,
+    });
   }
 
   async findAll(params: {
@@ -48,9 +44,15 @@ export class CategoriesService {
 
   async update(params: {
     where: Prisma.CategoryWhereUniqueInput;
-    data: Prisma.CategoryUpdateInput;
+    data: CreateCategoryDto;
   }): Promise<Category> {
     const { where, data } = params;
+    const category = await this.prisma.category.findUnique({
+      where,
+    });
+    if (!category) {
+      throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+    }
     return this.prisma.category.update({
       data,
       where,
@@ -58,6 +60,12 @@ export class CategoriesService {
   }
 
   async remove(where: Prisma.CategoryWhereUniqueInput): Promise<Category> {
+    const category = await this.prisma.category.findUnique({
+      where,
+    });
+    if (!category) {
+      throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+    }
     return this.prisma.category.delete({
       where,
     });

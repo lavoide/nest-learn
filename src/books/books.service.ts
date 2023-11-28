@@ -1,20 +1,17 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Book, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
+import { CreateBookDto } from './dto/create-book.dto';
+import { UpdateBookDto } from './dto/update-book.dto';
 
 @Injectable()
 export class BooksService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: Prisma.BookCreateInput): Promise<Book> {
-    try {
-      const book = this.prisma.book.create({
-        data,
-      });
-      return book;
-    } catch (err) {
-      throw new HttpException('Create Error', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async create(data: CreateBookDto): Promise<Book> {
+    return this.prisma.book.create({
+      data,
+    });
   }
 
   async findAll(params: {
@@ -48,9 +45,15 @@ export class BooksService {
 
   async update(params: {
     where: Prisma.BookWhereUniqueInput;
-    data: Prisma.BookUpdateInput;
+    data: UpdateBookDto;
   }): Promise<Book> {
     const { where, data } = params;
+    const book = await this.prisma.book.findUnique({
+      where,
+    });
+    if (!book) {
+      throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
+    }
     return this.prisma.book.update({
       data,
       where,
@@ -58,6 +61,12 @@ export class BooksService {
   }
 
   async remove(where: Prisma.BookWhereUniqueInput): Promise<Book> {
+    const book = await this.prisma.book.findUnique({
+      where,
+    });
+    if (!book) {
+      throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
+    }
     return this.prisma.book.delete({
       where,
     });

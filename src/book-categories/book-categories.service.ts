@@ -1,23 +1,28 @@
-// book-categories.service.ts
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { BookCategory, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreateBookCategoryDto } from './dto/create-book-category.dto';
-import { UpdateBookCategoryDto } from './dto/update-book-category.dto';
 
 @Injectable()
 export class BookCategoriesService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: CreateBookCategoryDto): Promise<BookCategory> {
-    try {
-      const bookCategory = this.prisma.bookCategory.create({
-        data,
-      });
-      return bookCategory;
-    } catch (err) {
-      throw new HttpException('Create Error', HttpStatus.INTERNAL_SERVER_ERROR);
+  async addBookToCategory(data: CreateBookCategoryDto): Promise<BookCategory> {
+    const bookExists = await this.prisma.book.findUnique({
+      where: { id: data.bookId },
+    });
+    const categoryExists = await this.prisma.category.findUnique({
+      where: { id: data.categoryId },
+    });
+    if (!categoryExists || !bookExists) {
+      throw new HttpException(
+        'Book or category not found',
+        HttpStatus.NOT_FOUND,
+      );
     }
+    return this.prisma.bookCategory.create({
+      data,
+    });
   }
 
   async findAll(params: {
@@ -34,29 +39,6 @@ export class BookCategoriesService {
       cursor,
       where,
       orderBy,
-    });
-  }
-
-  async findOne(
-    bookCategoryWhereUniqueInput: Prisma.BookCategoryWhereUniqueInput,
-  ): Promise<BookCategory | null> {
-    const bookCategory = await this.prisma.bookCategory.findUnique({
-      where: bookCategoryWhereUniqueInput,
-    });
-    if (bookCategory) {
-      return bookCategory;
-    }
-    throw new HttpException('BookCategory not found', HttpStatus.NOT_FOUND);
-  }
-
-  async update(params: {
-    where: Prisma.BookCategoryWhereUniqueInput;
-    data: UpdateBookCategoryDto;
-  }): Promise<BookCategory> {
-    const { where, data } = params;
-    return this.prisma.bookCategory.update({
-      data,
-      where,
     });
   }
 
