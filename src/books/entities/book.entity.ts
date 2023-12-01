@@ -3,5 +3,5 @@ export class Book {
   title: string;
   content: string;
   published: boolean;
-  ownerId: number;
+  ownerId?: number;
 }

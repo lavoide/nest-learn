@@ -11,5 +11,5 @@ export class BookDto {
   published: boolean;
 
   @ApiProperty()
-  userId: number;
+  ownerId?: number;
 }
