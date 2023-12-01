@@ -13,5 +13,5 @@ export class UpdateBookDto extends PartialType(BookDto) {
   published: boolean;
 
   @ApiProperty()
-  userId: number;
+  ownerId?: number;
 }

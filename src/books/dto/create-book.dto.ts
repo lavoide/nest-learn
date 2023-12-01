@@ -12,5 +12,5 @@ export class CreateBookDto extends BookDto {
   published: boolean;
 
   @ApiProperty()
-  userId: number;
+  ownerId?: number;
 }

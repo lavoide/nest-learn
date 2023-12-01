@@ -9,8 +9,24 @@ export class BooksService {
   constructor(private prisma: PrismaService) {}
 
   async create(data: CreateBookDto): Promise<Book> {
+    // If no user id is provided the book is created without an owner
+    if (!data.ownerId) {
+      return this.prisma.book.create({
+        data,
+      });
+    }
+    const user = await this.prisma.user.findUnique({
+      where: { id: data.ownerId },
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const { ownerId, ...bookData } = data;
     return this.prisma.book.create({
-      data,
+      data: {
+        ...bookData,
+        owner: { connect: { id: ownerId } },
+      },
     });
   }
 
@@ -54,8 +70,25 @@ export class BooksService {
     if (!book) {
       throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
     }
+    // If no user id is provided the book is updated without the owner
+    if (!data.ownerId) {
+      return this.prisma.book.update({
+        data,
+        where,
+      });
+    }
+    const user = await this.prisma.user.findUnique({
+      where: { id: data.ownerId },
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const { ownerId, ...bookData } = data;
     return this.prisma.book.update({
-      data,
+      data: {
+        ...bookData,
+        owner: { connect: { id: ownerId } },
+      },
       where,
     });
   }

@@ -19,6 +19,20 @@ export class BookCategoriesController {
     return this.bookCategoriesService.findAll({});
   }
 
+  @Get('/book/:id')
+  getCategoriesByBook(@Param('id') id: string): Promise<BookCategory[]> {
+    return this.bookCategoriesService.findAll({
+      where: { bookId: Number(id) },
+    });
+  }
+
+  @Get('/category/:id')
+  getBooksByCategory(@Param('id') id: string): Promise<BookCategory[]> {
+    return this.bookCategoriesService.findAll({
+      where: { categoryId: Number(id) },
+    });
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string): Promise<BookCategory> {
     return this.bookCategoriesService.remove({ id: Number(id) });

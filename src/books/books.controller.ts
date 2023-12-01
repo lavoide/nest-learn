@@ -33,6 +33,11 @@ export class BooksController {
     return this.booksService.findOne({ id: Number(id) });
   }
 
+  @Get('user/:id')
+  getUserBooks(@Param('id') id: string): Promise<Book[]> {
+    return this.booksService.findAll({ where: { ownerId: Number(id) } });
+  }
+
   @Patch(':id')
   update(
     @Param('id') id: string,
