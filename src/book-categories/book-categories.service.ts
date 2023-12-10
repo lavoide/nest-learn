@@ -8,18 +8,12 @@ export class BookCategoriesService {
   constructor(private prisma: PrismaService) {}
 
   async addBookToCategory(data: CreateBookCategoryDto): Promise<BookCategory> {
-    const bookExists = await this.prisma.book.findUnique({
+    await this.prisma.book.findFirstOrThrow({
       where: { id: data.bookId },
     });
-    const categoryExists = await this.prisma.category.findUnique({
+    await this.prisma.category.findFirstOrThrow({
       where: { id: data.categoryId },
     });
-    if (!categoryExists || !bookExists) {
-      throw new HttpException(
-        'Book or category not found',
-        HttpStatus.NOT_FOUND,
-      );
-    }
     return this.prisma.bookCategory.create({
       data,
     });
