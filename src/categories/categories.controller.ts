@@ -33,6 +33,11 @@ export class CategoriesController {
     return this.categoriesService.findOne({ id: Number(id) });
   }
 
+  @Get('book-by-category-id/:categoryId')
+  getBooksByCategory(@Param('categoryId') id: string): Promise<Category[]> {
+    return this.categoriesService.getCategoriesByBookId(Number(id));
+  }
+
   @Patch(':id')
   update(
     @Param('id') id: string,

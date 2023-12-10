@@ -59,6 +59,18 @@ export class BooksService {
     throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
   }
 
+  async getBooksByUserId(userId: number) {
+    return this.findAll({ where: { ownerId: userId } });
+  }
+
+  async getBooksByCategoryId(categoryId: number) {
+    const result = await this.prisma.bookCategory.findMany({
+      where: { categoryId },
+      include: { book: true },
+    });
+    return result.map((item) => item.book);
+  }
+
   async update(params: {
     where: Prisma.BookWhereUniqueInput;
     data: UpdateBookDto;

@@ -33,9 +33,14 @@ export class BooksController {
     return this.booksService.findOne({ id: Number(id) });
   }
 
-  @Get('user/:id')
-  getUserBooks(@Param('id') id: string): Promise<Book[]> {
-    return this.booksService.findAll({ where: { ownerId: Number(id) } });
+  @Get('books-by-user-id/:userId')
+  getUserBooks(@Param('userId') id: string): Promise<Book[]> {
+    return this.booksService.getBooksByUserId(Number(id));
+  }
+
+  @Get('books-by-category-id/:categoryId')
+  getBooksByCategory(@Param('categoryId') id: string): Promise<Book[]> {
+    return this.booksService.getBooksByCategoryId(Number(id));
   }
 
   @Patch(':id')

@@ -42,6 +42,15 @@ export class CategoriesService {
     throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
   }
 
+  async getCategoriesByBookId(bookId: number) {
+    const result = await this.prisma.bookCategory.findMany({
+      where: { bookId },
+      include: { category: true },
+    });
+
+    return result.map((item) => item.category);
+  }
+
   async update(params: {
     where: Prisma.CategoryWhereUniqueInput;
     data: CreateCategoryDto;
