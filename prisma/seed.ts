@@ -17,8 +17,8 @@ async function clearDatabase() {
 async function seedDatabase() {
   // Seed data for Users
   const users: CreateUserDto[] = [
-    { email: 'john@example.com', name: 'John Doe' },
-    { email: 'jane@example.com', name: 'Jane Doe' },
+    { email: 'john@example.com', name: 'John Doe', password: 'test' },
+    { email: 'jane@example.com', name: 'Jane Doe', password: 'test' },
   ];
 
   // Seed data for Categories
@@ -85,7 +85,7 @@ async function main() {
     await clearDatabase();
 
     // Seed the database
-    await seedDatabase();
+    // await seedDatabase();
 
     console.log('Database cleared and seeded successfully');
   } catch (error) {
