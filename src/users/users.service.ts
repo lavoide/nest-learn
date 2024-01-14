@@ -3,6 +3,7 @@ import { User, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { USER_ERRORS } from './users.contsants';
 
 @Injectable()
 export class UsersService {
@@ -40,7 +41,7 @@ export class UsersService {
     if (user) {
       return user;
     }
-    throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    throw new HttpException(USER_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   async update(params: {
@@ -52,7 +53,7 @@ export class UsersService {
       where,
     });
     if (!existingUser) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(USER_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
     return this.prisma.user.update({
       data,
@@ -65,7 +66,7 @@ export class UsersService {
       where,
     });
     if (!existingUser) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(USER_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
     await this.prisma.user.delete({
       where,

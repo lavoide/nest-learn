@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { BookCategory, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreateBookCategoryDto } from './dto/create-book-category.dto';
