@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { PostgresErrorCode } from '../database/postgresErrorCodes.enum';
 import { AUTH_ERRORS } from './auth.constants';
@@ -13,10 +13,10 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  public async signIn(email: string, plainTextPassword: string) {
+  public async signIn(email: string, password: string) {
     try {
       const user = await this.usersService.findOne({ email });
-      await this.verifyPassword(plainTextPassword, user.password);
+      await this.verifyPassword(password, user.password);
       const payload = { id: user.id, email };
       return {
         access_token: await this.jwtService.signAsync(payload),
@@ -52,8 +52,12 @@ export class AuthService {
       createdUser.password = undefined;
       return createdUser;
     } catch (error) {
+      // Same email error
       if (error?.code === PostgresErrorCode.UniqueViolation) {
-        throw new HttpException(AUTH_ERRORS.SAME_EMAIL, HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          AUTH_ERRORS.SOMETHING_WRONG,
+          HttpStatus.BAD_REQUEST,
+        );
       }
       throw new HttpException(
         AUTH_ERRORS.SOMETHING_WRONG,
