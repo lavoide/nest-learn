@@ -14,8 +14,8 @@ import { AuthController } from './auth.controller';
   imports: [
     JwtModule.register({
       global: true,
-      secret: JWT_CONSTANTS.secret,
-      signOptions: { expiresIn: JWT_PUBLIC.EPXIRE_TIME },
+      secret: JWT_CONSTANTS.SECRET,
+      signOptions: { expiresIn: JWT_PUBLIC.EXPIRE_TIME },
     }),
     PassportModule,
   ],

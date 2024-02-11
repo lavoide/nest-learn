@@ -4,7 +4,8 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { PostgresErrorCode } from '../database/postgresErrorCodes.enum';
-import { AUTH_ERRORS } from './auth.constants';
+import { AUTH_ERRORS, JWT_PUBLIC } from './auth.constants';
+import { JWT_CONSTANTS } from './jwt/jwt.constants';
 
 @Injectable()
 export class AuthService {
@@ -18,12 +19,26 @@ export class AuthService {
       const user = await this.usersService.findOne({ email });
       await this.verifyPassword(password, user.password);
       const payload = { id: user.id, email };
-      return {
-        access_token: await this.jwtService.signAsync(payload),
-      };
+      const access_token = await this.jwtService.signAsync(payload);
+      // You can return the access token directly, but here I am using cookies
+      return `Authentication=${access_token}; HttpOnly; Path=/; Max-Age=${JWT_PUBLIC.EXPIRE_TIME}`;
     } catch (error) {
       throw new HttpException(AUTH_ERRORS.WRONG_CREDS, HttpStatus.BAD_REQUEST);
     }
+  }
+
+  public async refreshLogin(email: string) {
+    const user = await this.usersService.findOne({ email });
+    const payload = { id: user.id, email };
+    const access_token = await this.jwtService.signAsync(payload, {
+      secret: JWT_CONSTANTS.REFRESH_SECRET,
+      expiresIn: JWT_PUBLIC.REFRESH_EXPIRE_TIME,
+    });
+    const cookie = `Refresh=${access_token}; HttpOnly; Path=/; Max-Age=${JWT_PUBLIC.REFRESH_EXPIRE_TIME}`;
+    return {
+      refreshCookie: cookie,
+      token: access_token,
+    };
   }
 
   private async verifyPassword(
@@ -64,5 +79,16 @@ export class AuthService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+  public async setCurrentRefreshToken(refreshToken: string, email: string) {
+    const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.usersService.update({
+      where: { email },
+      data: { refreshToken: currentHashedRefreshToken },
+    });
+  }
+
+  public getCookieForLogOut() {
+    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
   }
 }
