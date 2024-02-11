@@ -4,11 +4,14 @@ import { UserDto } from './user-dto';
 
 export class UpdateUserDto extends PartialType(UserDto) {
   @ApiProperty()
-  name: string;
+  name?: string;
 
   @ApiProperty()
-  email: string;
+  email?: string;
 
   @ApiProperty()
-  password: string;
+  password?: string;
+
+  @ApiProperty()
+  refreshToken?: string;
 }

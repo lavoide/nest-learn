@@ -5,5 +5,6 @@ export const AUTH_ERRORS = {
 };
 
 export const JWT_PUBLIC = {
-  EPXIRE_TIME: '5m',
+  EXPIRE_TIME: '5m',
+  REFRESH_EXPIRE_TIME: '10d',
 };

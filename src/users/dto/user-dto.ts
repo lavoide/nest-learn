@@ -9,4 +9,7 @@ export class UserDto {
 
   @ApiProperty()
   password: string;
+
+  @ApiProperty()
+  refreshToken?: string;
 }
