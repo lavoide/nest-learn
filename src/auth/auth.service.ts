@@ -88,7 +88,19 @@ export class AuthService {
     });
   }
 
+  public async removeRefreshToken(email: string) {
+    return this.usersService.update({
+      where: { email },
+      data: {
+        refreshToken: null,
+      },
+    });
+  }
+
   public getCookieForLogOut() {
-    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+    return [
+      'Authentication=; HttpOnly; Path=/; Max-Age=0',
+      'Refresh=; HttpOnly; Path=/; Max-Age=0',
+    ];
   }
 }
