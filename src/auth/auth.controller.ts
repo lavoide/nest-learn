@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   Request,
   Res,
   UseGuards,
@@ -17,6 +18,7 @@ import { LocalAuthGuard } from './local/localAuth.guard';
 import { JwtAuthGuard } from './jwt/jwtAuth.guard';
 import RequestWithUser from './requestWithUser.interface';
 import { Response } from 'express';
+import JwtRefreshGuard from './jwt/jwtRefresh.guard';
 
 @Controller('auth')
 @ApiBearerAuth('JWT-auth')
@@ -56,7 +58,19 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logOut(@Request() request: RequestWithUser, @Res() response: Response) {
+    await this.authService.removeRefreshToken(request.user.email);
     response.setHeader('Set-Cookie', this.authService.getCookieForLogOut());
     return response.sendStatus(200);
+  }
+
+  @UseGuards(JwtRefreshGuard)
+  @Get('refresh')
+  async refresh(@Request() request: RequestWithUser) {
+    const accessTokenCookie = await this.authService.refreshLogin(
+      request.user.email,
+    );
+
+    request.res.setHeader('Set-Cookie', accessTokenCookie.refreshCookie);
+    return request.user;
   }
 }

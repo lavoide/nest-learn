@@ -9,6 +9,7 @@ import { JWT_PUBLIC } from './auth.constants';
 import { LocalStrategy } from './local/local.strategy';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { AuthController } from './auth.controller';
+import { JwtRefreshStrategy } from './jwt/jwt-refresh.strategy';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AuthController } from './auth.controller';
     PrismaService,
     LocalStrategy,
     JwtStrategy,
+    JwtRefreshStrategy,
   ],
 })
 export class AuthModule {}
