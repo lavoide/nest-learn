@@ -16,6 +16,7 @@ export class AuthService {
 
   public async signIn(email: string, password: string) {
     try {
+      email = email.toLowerCase();
       const user = await this.usersService.findOne({ email });
       await this.verifyPassword(password, user.password);
       const payload = { id: user.id, email };
@@ -28,6 +29,7 @@ export class AuthService {
   }
 
   public async refreshLogin(email: string) {
+    email = email.toLowerCase();
     const user = await this.usersService.findOne({ email });
     const payload = { id: user.id, email };
     const access_token = await this.jwtService.signAsync(payload, {
@@ -60,6 +62,7 @@ export class AuthService {
   public async register(registrationData: RegisterDto) {
     const hashedPassword = await bcrypt.hash(registrationData.password, 10);
     try {
+      registrationData.email = registrationData.email.toLowerCase();
       const createdUser = await this.usersService.create({
         ...registrationData,
         password: hashedPassword,
