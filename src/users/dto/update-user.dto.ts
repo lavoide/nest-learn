@@ -1,11 +1,25 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserDto } from './user-dto';
+import { IsEmail, MaxLength, MinLength } from 'class-validator';
 
 export class UpdateUserDto extends PartialType(UserDto) {
   @ApiProperty()
-  name: string;
+  @MinLength(3)
+  @MaxLength(50)
+  name?: string;
 
   @ApiProperty()
-  email: string;
+  @IsEmail()
+  @MinLength(6)
+  @MaxLength(50)
+  email?: string;
+
+  @ApiProperty()
+  @MinLength(3)
+  @MaxLength(50)
+  password?: string;
+
+  @ApiProperty()
+  refreshToken?: string;
 }

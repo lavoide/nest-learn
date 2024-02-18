@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Category, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { CATEGORY_ERRORS } from './categories.contsants';
 
 @Injectable()
 export class CategoriesService {
@@ -39,7 +40,7 @@ export class CategoriesService {
     if (category) {
       return category;
     }
-    throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+    throw new HttpException(CATEGORY_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   async getCategoriesByBookId(bookId: number) {
@@ -60,7 +61,7 @@ export class CategoriesService {
       where,
     });
     if (!category) {
-      throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(CATEGORY_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
     return this.prisma.category.update({
       data,
@@ -73,7 +74,7 @@ export class CategoriesService {
       where,
     });
     if (!category) {
-      throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(CATEGORY_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
     return this.prisma.category.delete({
       where,
