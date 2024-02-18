@@ -3,7 +3,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
-import { PostgresErrorCode } from '../database/postgresErrorCodes.enum';
 import { AUTH_ERRORS, JWT_PUBLIC } from './auth.constants';
 import { JWT_CONSTANTS } from './jwt/jwt.constants';
 
@@ -16,12 +15,11 @@ export class AuthService {
 
   public async signIn(email: string, password: string) {
     try {
-      email = email.toLowerCase();
-      const user = await this.usersService.findOne({ email });
+      const lowerCasedEmail = email.toLowerCase();
+      const user = await this.usersService.findOne({ email: lowerCasedEmail });
       await this.verifyPassword(password, user.password);
       const payload = { id: user.id, email };
       const access_token = await this.jwtService.signAsync(payload);
-      // You can return the access token directly, but here I am using cookies
       return `Authentication=${access_token}; HttpOnly; Path=/; Max-Age=${JWT_PUBLIC.EXPIRE_TIME}`;
     } catch (error) {
       throw new HttpException(AUTH_ERRORS.WRONG_CREDS, HttpStatus.BAD_REQUEST);
@@ -29,8 +27,8 @@ export class AuthService {
   }
 
   public async refreshLogin(email: string) {
-    email = email.toLowerCase();
-    const user = await this.usersService.findOne({ email });
+    const lowerCasedEmail = email.toLowerCase();
+    const user = await this.usersService.findOne({ email: lowerCasedEmail });
     const payload = { id: user.id, email };
     const access_token = await this.jwtService.signAsync(payload, {
       secret: JWT_CONSTANTS.REFRESH_SECRET,
@@ -61,28 +59,24 @@ export class AuthService {
 
   public async register(registrationData: RegisterDto) {
     const hashedPassword = await bcrypt.hash(registrationData.password, 10);
-    try {
-      registrationData.email = registrationData.email.toLowerCase();
-      const createdUser = await this.usersService.create({
-        ...registrationData,
-        password: hashedPassword,
-      });
-      createdUser.password = undefined;
-      return createdUser;
-    } catch (error) {
-      // Same email error
-      if (error?.code === PostgresErrorCode.UniqueViolation) {
-        throw new HttpException(
-          AUTH_ERRORS.SOMETHING_WRONG,
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+    registrationData.email = registrationData.email.toLowerCase();
+    const isUserExist = await this.usersService.findOne({
+      email: registrationData.email,
+    });
+    if (isUserExist) {
       throw new HttpException(
         AUTH_ERRORS.SOMETHING_WRONG,
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        HttpStatus.BAD_REQUEST,
       );
     }
+    const createdUser = await this.usersService.create({
+      ...registrationData,
+      password: hashedPassword,
+    });
+    createdUser.password = undefined;
+    return createdUser;
   }
+
   public async setCurrentRefreshToken(refreshToken: string, email: string) {
     const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.usersService.update({
