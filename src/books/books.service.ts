@@ -3,6 +3,7 @@ import { Book, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { BOOK_ERRORS } from './books.contsants';
 
 @Injectable()
 export class BooksService {
@@ -56,7 +57,7 @@ export class BooksService {
     if (book) {
       return book;
     }
-    throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
+    throw new HttpException(BOOK_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   async getBooksByUserId(userId: number) {
@@ -80,7 +81,7 @@ export class BooksService {
       where,
     });
     if (!book) {
-      throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(BOOK_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
     // If no user id is provided the book is updated without the owner
     if (!data.ownerId) {
@@ -110,7 +111,7 @@ export class BooksService {
       where,
     });
     if (!book) {
-      throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(BOOK_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
     return this.prisma.book.delete({
       where,
