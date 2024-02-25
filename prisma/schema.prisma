@@ -11,12 +11,14 @@ datasource db {
 }
 
 model User {
-  id           Int     @id @default(autoincrement())
-  email        String  @unique
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
   name         String?
   password     String
   refreshToken String?
   books        Book[]
+  Article      Article[]
+  Comment      Comment[]
 }
 
 model Book {
@@ -43,4 +45,26 @@ model BookCategory {
   categoryId Int?
 
   @@unique([bookId, categoryId])
+}
+
+model Article {
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String?
+  createdAt DateTime
+  updatedAt DateTime
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  Int
+  Comment   Comment[]
+}
+
+model Comment {
+  id          Int      @id @default(autoincrement())
+  text        String
+  createdAt   DateTime
+  updatedAt   DateTime
+  commenter   User     @relation(fields: [commenterId], references: [id])
+  commenterId Int
+  article     Article  @relation(fields: [articleId], references: [id])
+  articleId   Int
 }
