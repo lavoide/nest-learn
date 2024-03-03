@@ -6,12 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Article } from '@prisma/client';
+import { ArticleQueryDto } from './dto/article-query.dto';
 
 @Controller('articles')
 @ApiTags('Articles')
@@ -31,6 +33,21 @@ export class ArticlesController {
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Article> {
     return this.articlesService.findOne(Number(id));
+  }
+
+  @Get('/user/:userId')
+  findByUserId(
+    @Param('userId') authorId: string,
+    @Query() query: ArticleQueryDto,
+  ): Promise<Article[]> {
+    return this.articlesService.getArticlesPaginated(
+      Number(authorId),
+      Number(query?.page),
+      query?.sortBy,
+      query?.sortOrder,
+      query?.filterBy,
+      query?.filterContains,
+    );
   }
 
   @Patch(':id')
