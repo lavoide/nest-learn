@@ -6,12 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from '@prisma/client';
 import { ApiTags } from '@nestjs/swagger';
+import { CommentQueryDto } from './dto/comment-query.dto';
 
 @Controller('comments')
 @ApiTags('Comments')
@@ -31,6 +33,17 @@ export class CommentsController {
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Comment> {
     return this.commentsService.findOne(Number(id));
+  }
+
+  @Get('/article/:articleId')
+  getByArticle(
+    @Param('articleId') articleId: string,
+    @Query() query: CommentQueryDto,
+  ): Promise<Comment[]> {
+    return this.commentsService.getCommentsForArticlePaginaged(
+      Number(articleId),
+      Number(query?.cursor),
+    );
   }
 
   @Patch(':id')
