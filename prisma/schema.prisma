@@ -14,6 +14,7 @@ model User {
   id           Int       @id @default(autoincrement())
   email        String    @unique
   name         String?
+  role         Role      @default(USER)
   password     String
   refreshToken String?
   books        Book[]
@@ -67,4 +68,9 @@ model Comment {
   commenterId Int
   article     Article  @relation(fields: [articleId], references: [id])
   articleId   Int
+}
+
+enum Role {
+  USER
+  ADMIN
 }

@@ -1,10 +1,12 @@
 // seed.ts
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 import { CreateArticleDto } from 'src/articles/dto/create-article.dto';
 import { CreateBookDto } from 'src/books/dto/create-book.dto';
 import { CreateCategoryDto } from 'src/categories/dto/create-category.dto';
 import { CreateCommentDto } from 'src/comments/dto/create-comment.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { Role } from '../src/auth/role/role.enum';
 
 const prisma = new PrismaClient();
 
@@ -21,8 +23,22 @@ async function clearDatabase() {
 async function seedDatabase() {
   // Seed data for Users
   const users: CreateUserDto[] = [
-    { email: 'john@example.com', name: 'John Doe', password: 'test' },
-    { email: 'jane@example.com', name: 'Jane Doe', password: 'test' },
+    {
+      email: 'john@example.com',
+      name: 'John Doe',
+      password: await bcrypt.hash('test', 10),
+    },
+    {
+      email: 'jane@example.com',
+      name: 'Jane Doe',
+      password: await bcrypt.hash('test', 10),
+    },
+    {
+      email: 'admin@admin.com',
+      name: 'Admin',
+      password: await bcrypt.hash('admin123', 10),
+      role: Role.Admin,
+    },
   ];
 
   // Seed data for Categories
