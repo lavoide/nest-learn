@@ -94,7 +94,7 @@ export class ArticlesService {
       throw new HttpException(ARTICLE_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
     const updatedArticle = data;
-    article['updatedAt'] = new Date();
+    updatedArticle['updatedAt'] = new Date();
     return this.prisma.article.update({
       where: { id },
       data: updatedArticle,

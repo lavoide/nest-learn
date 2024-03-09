@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { CreateArticleDto } from 'src/articles/dto/create-article.dto';
 import { CreateBookDto } from 'src/books/dto/create-book.dto';
 import { CreateCategoryDto } from 'src/categories/dto/create-category.dto';
+import { CreateCommentDto } from 'src/comments/dto/create-comment.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 const prisma = new PrismaClient();
@@ -12,6 +13,8 @@ async function clearDatabase() {
   await prisma.bookCategory.deleteMany({});
   await prisma.book.deleteMany({});
   await prisma.category.deleteMany({});
+  await prisma.comment.deleteMany({});
+  await prisma.article.deleteMany({});
   await prisma.user.deleteMany({});
 }
 
@@ -144,6 +147,54 @@ async function seedDatabase() {
   ];
 
   await prisma.article.createMany({ data: articles });
+  const createdArticles = await prisma.article.findMany({});
+
+  const comments: CreateCommentDto[] = [
+    {
+      text: 'Comment 1',
+      commenterId: createdUsers[0].id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      articleId: createdArticles[0].id,
+    },
+    {
+      text: 'Comment 3',
+      commenterId: createdUsers[0].id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      articleId: createdArticles[0].id,
+    },
+    {
+      text: 'Comment 2',
+      commenterId: createdUsers[0].id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      articleId: createdArticles[0].id,
+    },
+    {
+      text: 'Comment 4',
+      commenterId: createdUsers[0].id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      articleId: createdArticles[0].id,
+    },
+    {
+      text: 'Comment 5',
+      commenterId: createdUsers[0].id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      articleId: createdArticles[0].id,
+    },
+    {
+      text: 'Comment 6',
+      commenterId: createdUsers[0].id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      articleId: createdArticles[0].id,
+    },
+  ];
+
+  await prisma.comment.createMany({ data: comments });
 
   console.log('Seed data inserted successfully');
 }
