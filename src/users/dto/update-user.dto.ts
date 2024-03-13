@@ -2,6 +2,7 @@ import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserDto } from './user-dto';
 import { IsEmail, MaxLength, MinLength } from 'class-validator';
+import { Role } from 'src/auth/role/role.enum';
 
 export class UpdateUserDto extends PartialType(UserDto) {
   @ApiProperty()
@@ -22,4 +23,7 @@ export class UpdateUserDto extends PartialType(UserDto) {
 
   @ApiProperty()
   refreshToken?: string;
+
+  @ApiProperty()
+  role?: Role;
 }
