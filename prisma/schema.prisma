@@ -52,9 +52,9 @@ model Article {
   id        Int       @id @default(autoincrement())
   title     String
   content   String?
-  createdAt DateTime
-  updatedAt DateTime
-  author    User      @relation(fields: [authorId], references: [id])
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   authorId  Int
   Comment   Comment[]
 }
@@ -62,11 +62,11 @@ model Article {
 model Comment {
   id          Int      @id @default(autoincrement())
   text        String
-  createdAt   DateTime
-  updatedAt   DateTime
-  commenter   User     @relation(fields: [commenterId], references: [id])
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  commenter   User     @relation(fields: [commenterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   commenterId Int
-  article     Article  @relation(fields: [articleId], references: [id])
+  article     Article  @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   articleId   Int
 }
 

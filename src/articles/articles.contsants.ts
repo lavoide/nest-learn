@@ -6,3 +6,8 @@ export const ARTICLE_ERRORS = {
 };
 
 export const PAGE_SIZE_ARTICLE = 5;
+
+export enum OrderDirectionConstants {
+  ASC = 'asc',
+  DESC = 'desc',
+}

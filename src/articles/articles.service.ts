@@ -1,22 +1,23 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Article } from '@prisma/client';
+import { plainToInstance } from 'class-transformer';
 import { PrismaService } from '../prisma.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
-import { ARTICLE_ERRORS, PAGE_SIZE_ARTICLE } from './articles.contsants';
 import { ArticleDto } from './dto/article.dto';
-import { plainToInstance } from 'class-transformer';
+import {
+  ARTICLE_ERRORS,
+  OrderDirectionConstants,
+  PAGE_SIZE_ARTICLE,
+} from './articles.contsants';
 
 @Injectable()
 export class ArticlesService {
   constructor(private prisma: PrismaService) {}
 
   async create(data: CreateArticleDto): Promise<Article> {
-    const article = data;
-    article['createdAt'] = new Date();
-    article['updatedAt'] = new Date();
     return this.prisma.article.create({
-      data: article,
+      data,
     });
   }
 
@@ -38,7 +39,7 @@ export class ArticlesService {
     authorId: number,
     page: number,
     sortBy: string,
-    sortOrder: string,
+    sortOrder: OrderDirectionConstants,
     filterBy: string,
     filterContains: string,
   ): Promise<Article[]> {
@@ -69,12 +70,6 @@ export class ArticlesService {
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
-      if (sortOrder !== 'asc' && sortOrder !== 'desc') {
-        throw new HttpException(
-          ARTICLE_ERRORS.WRONG_ORDER,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
       orderBy[`${sortBy}`] = sortOrder;
     }
 
@@ -87,29 +82,32 @@ export class ArticlesService {
   }
 
   async update(id: number, data: UpdateArticleDto): Promise<Article> {
-    const article = await this.prisma.article.findUnique({
+    await this.prisma.article.findFirstOrThrow({
       where: { id },
     });
-    if (!article) {
-      throw new HttpException(ARTICLE_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
-    }
-    const updatedArticle = data;
-    updatedArticle['updatedAt'] = new Date();
     return this.prisma.article.update({
       where: { id },
-      data: updatedArticle,
+      data,
     });
   }
 
   async remove(id: number): Promise<Article> {
-    const article = await this.prisma.article.findUnique({
+    await this.prisma.article.findFirstOrThrow({
       where: { id },
     });
-    if (!article) {
-      throw new HttpException(ARTICLE_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
-    }
+
     return this.prisma.article.delete({
       where: { id },
+    });
+  }
+
+  async removeOwn(id: number, authorId: number): Promise<Article> {
+    await this.prisma.article.findFirstOrThrow({
+      where: { id, authorId },
+    });
+
+    return this.prisma.article.delete({
+      where: { id, authorId },
     });
   }
 }

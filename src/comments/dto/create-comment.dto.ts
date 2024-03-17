@@ -6,12 +6,6 @@ export class CreateCommentDto extends CommentDto {
   text: string;
 
   @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  updatedAt: Date;
-
-  @ApiProperty()
   commenterId: number;
 
   @ApiProperty()
