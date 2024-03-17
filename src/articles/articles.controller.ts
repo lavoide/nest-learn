@@ -7,13 +7,19 @@ import {
   Param,
   Delete,
   Query,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { Article } from '@prisma/client';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
-import { ApiTags } from '@nestjs/swagger';
-import { Article } from '@prisma/client';
 import { ArticleQueryDto } from './dto/article-query.dto';
+import RequestWithUser from '../auth/requestWithUser.interface';
+import RoleGuard from '../auth/role/role.guard';
+import { Role } from '../auth/role/role.enum';
+import { JwtAuthGuard } from '../auth/jwt/jwtAuth.guard';
 
 @Controller('articles')
 @ApiTags('Articles')
@@ -21,8 +27,14 @@ export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
 
   @Post()
-  create(@Body() createArticleDto: CreateArticleDto) {
-    return this.articlesService.create(createArticleDto);
+  @UseGuards(JwtAuthGuard)
+  create(
+    @Request() request: RequestWithUser,
+    @Body() createArticleDto: CreateArticleDto,
+  ) {
+    const data = createArticleDto;
+    data.authorId = request.user?.id;
+    return this.articlesService.create(data);
   }
 
   @Get()
@@ -35,7 +47,7 @@ export class ArticlesController {
     return this.articlesService.findOne(Number(id));
   }
 
-  @Get('/user/:userId')
+  @Get('/by-user-id/:userId')
   findByUserId(
     @Param('userId') authorId: string,
     @Query() query: ArticleQueryDto,
@@ -59,7 +71,20 @@ export class ArticlesController {
   }
 
   @Delete(':id')
+  @UseGuards(RoleGuard([Role.Admin]))
+  @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string): Promise<Article> {
     return this.articlesService.remove(Number(id));
+  }
+
+  @Delete('delete-own/:id')
+  @UseGuards(RoleGuard([Role.Admin, Role.User]))
+  @UseGuards(JwtAuthGuard)
+  removeOwn(
+    @Request() request: RequestWithUser,
+    @Param('id') id: string,
+  ): Promise<Article> {
+    console.log(request.user);
+    return this.articlesService.removeOwn(Number(id), Number(request.user.id));
   }
 }

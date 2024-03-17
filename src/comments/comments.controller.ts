@@ -5,15 +5,19 @@ import {
   Body,
   Patch,
   Param,
+  Request,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { Comment } from '@prisma/client';
+import { ApiTags } from '@nestjs/swagger';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { Comment } from '@prisma/client';
-import { ApiTags } from '@nestjs/swagger';
 import { CommentQueryDto } from './dto/comment-query.dto';
+import { JwtAuthGuard } from '../auth/jwt/jwtAuth.guard';
+import RequestWithUser from 'src/auth/requestWithUser.interface';
 
 @Controller('comments')
 @ApiTags('Comments')
@@ -21,8 +25,14 @@ export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
   @Post()
-  create(@Body() createCommentDto: CreateCommentDto): Promise<Comment> {
-    return this.commentsService.create(createCommentDto);
+  @UseGuards(JwtAuthGuard)
+  create(
+    @Request() request: RequestWithUser,
+    @Body() createCommentDto: CreateCommentDto,
+  ): Promise<Comment> {
+    const data = createCommentDto;
+    data.commenterId = request.user?.id;
+    return this.commentsService.create(data);
   }
 
   @Get()
@@ -35,7 +45,7 @@ export class CommentsController {
     return this.commentsService.findOne(Number(id));
   }
 
-  @Get('/article/:articleId')
+  @Get('/by-article-id/:articleId')
   getByArticle(
     @Param('articleId') articleId: string,
     @Query() query: CommentQueryDto,
@@ -43,6 +53,7 @@ export class CommentsController {
     return this.commentsService.getCommentsForArticlePaginaged(
       Number(articleId),
       Number(query?.cursor),
+      Number(query?.pageSize),
     );
   }
 

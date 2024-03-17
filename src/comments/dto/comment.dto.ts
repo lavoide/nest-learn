@@ -5,13 +5,7 @@ export class CommentDto {
   text: string;
 
   @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  updatedAt: Date;
-
-  @ApiProperty()
-  commenterId: number;
+  commenterId?: number;
 
   @ApiProperty()
   articleId: number;

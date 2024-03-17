@@ -96,119 +96,27 @@ async function seedDatabase() {
     ],
   });
 
-  const articles: CreateArticleDto[] = [
-    {
-      title: 'Science',
-      content: 'text',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+  const articles: CreateArticleDto[] = [];
+  const numObjects = 8;
+  for (let i = 0; i < numObjects; i++) {
+    articles.push({
+      title: `Science${i === 0 ? '' : i}`,
+      content: `text${i === 0 ? '' : i}`,
       authorId: createdUsers[0].id,
-    },
-    {
-      title: 'Science1',
-      content: 'text1',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      authorId: createdUsers[0].id,
-    },
-    {
-      title: 'Science2',
-      content: 'text2',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      authorId: createdUsers[0].id,
-    },
-    {
-      title: 'Science3',
-      content: 'text3',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      authorId: createdUsers[0].id,
-    },
-    {
-      title: 'Science4',
-      content: 'text4',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      authorId: createdUsers[0].id,
-    },
-    {
-      title: 'Science5',
-      content: 'text5',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      authorId: createdUsers[0].id,
-    },
-    {
-      title: 'Science6',
-      content: 'text6',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      authorId: createdUsers[0].id,
-    },
-    {
-      title: 'Science7',
-      content: 'text7',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      authorId: createdUsers[0].id,
-    },
-    {
-      title: 'Science',
-      content: 'text',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      authorId: createdUsers[0].id,
-    },
-  ];
+    });
+  }
 
   await prisma.article.createMany({ data: articles });
   const createdArticles = await prisma.article.findMany({});
 
-  const comments: CreateCommentDto[] = [
-    {
-      text: 'Comment 1',
+  const comments: CreateCommentDto[] = [];
+  for (let i = 0; i < numObjects; i++) {
+    comments.push({
+      text: `Comment${i === 0 ? '' : i}`,
       commenterId: createdUsers[0].id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
       articleId: createdArticles[0].id,
-    },
-    {
-      text: 'Comment 3',
-      commenterId: createdUsers[0].id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      articleId: createdArticles[0].id,
-    },
-    {
-      text: 'Comment 2',
-      commenterId: createdUsers[0].id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      articleId: createdArticles[0].id,
-    },
-    {
-      text: 'Comment 4',
-      commenterId: createdUsers[0].id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      articleId: createdArticles[0].id,
-    },
-    {
-      text: 'Comment 5',
-      commenterId: createdUsers[0].id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      articleId: createdArticles[0].id,
-    },
-    {
-      text: 'Comment 6',
-      commenterId: createdUsers[0].id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      articleId: createdArticles[0].id,
-    },
-  ];
+    });
+  }
 
   await prisma.comment.createMany({ data: comments });
 

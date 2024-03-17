@@ -1,5 +1,3 @@
-// comments.service.ts
-
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { Comment } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
@@ -12,11 +10,8 @@ export class CommentsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateCommentDto): Promise<Comment> {
-    const comment = data;
-    comment['createdAt'] = new Date();
-    comment['updatedAt'] = new Date();
     return this.prisma.comment.create({
-      data: comment,
+      data,
     });
   }
 
@@ -37,10 +32,11 @@ export class CommentsService {
   async getCommentsForArticlePaginaged(
     articleId: number,
     cursor: number,
+    pageSize?: number,
   ): Promise<Comment[]> {
     if (!cursor) {
       return this.prisma.comment.findMany({
-        take: PAGE_SIZE_COMMENT,
+        take: pageSize ?? PAGE_SIZE_COMMENT,
         where: {
           articleId,
         },
@@ -59,27 +55,19 @@ export class CommentsService {
   }
 
   async update(id: number, data: UpdateCommentDto): Promise<Comment> {
-    const comment = await this.prisma.comment.findUnique({
+    await this.prisma.comment.findFirstOrThrow({
       where: { id },
     });
-    if (!comment) {
-      throw new HttpException(COMMENT_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
-    }
-    const updatedComment = data;
-    updatedComment['updatedAt'] = new Date();
     return this.prisma.comment.update({
       where: { id },
-      data: updatedComment,
+      data,
     });
   }
 
   async remove(id: number): Promise<Comment> {
-    const comment = await this.prisma.comment.findUnique({
+    await this.prisma.comment.findFirstOrThrow({
       where: { id },
     });
-    if (!comment) {
-      throw new HttpException(COMMENT_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
-    }
     return this.prisma.comment.delete({
       where: { id },
     });

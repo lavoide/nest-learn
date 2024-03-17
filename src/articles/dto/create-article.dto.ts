@@ -9,11 +9,5 @@ export class CreateArticleDto extends ArticleDto {
   content: string;
 
   @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  updatedAt: Date;
-
-  @ApiProperty()
   authorId: number;
 }

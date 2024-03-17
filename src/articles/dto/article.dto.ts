@@ -12,13 +12,5 @@ export class ArticleDto {
 
   @Expose()
   @ApiProperty()
-  createdAt: Date;
-
-  @Expose()
-  @ApiProperty()
-  updatedAt: Date;
-
-  @Expose()
-  @ApiProperty()
-  authorId: number;
+  authorId?: number;
 }
