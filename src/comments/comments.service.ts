@@ -1,9 +1,16 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { Comment } from '@prisma/client';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { Comment, Prisma, User } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { COMMENT_ERRORS, PAGE_SIZE_COMMENT } from './comment.contsants';
+import { Role } from '../auth/role/role.enum';
+import { AUTH_ERRORS } from '../auth/auth.constants';
 
 @Injectable()
 export class CommentsService {
@@ -19,9 +26,11 @@ export class CommentsService {
     return this.prisma.comment.findMany();
   }
 
-  async findOne(id: number): Promise<Comment | null> {
+  async findOne(
+    commentWhereUniqueInput: Prisma.CommentWhereUniqueInput,
+  ): Promise<Comment | null> {
     const comment = await this.prisma.comment.findUnique({
-      where: { id },
+      where: commentWhereUniqueInput,
     });
     if (comment) {
       return comment;
@@ -54,22 +63,30 @@ export class CommentsService {
     });
   }
 
-  async update(id: number, data: UpdateCommentDto): Promise<Comment> {
-    await this.prisma.comment.findFirstOrThrow({
-      where: { id },
-    });
-    return this.prisma.comment.update({
-      where: { id },
-      data,
-    });
+  async update(
+    user: User,
+    id: number,
+    data: UpdateCommentDto,
+  ): Promise<Comment> {
+    const comment = await this.findOne({ id });
+    if (user.role === Role.Admin || comment.commenterId === user.id) {
+      return this.prisma.comment.update({
+        where: { id },
+        data,
+      });
+    } else {
+      throw new UnauthorizedException(AUTH_ERRORS.CANT_EDIT);
+    }
   }
 
-  async remove(id: number): Promise<Comment> {
-    await this.prisma.comment.findFirstOrThrow({
-      where: { id },
-    });
-    return this.prisma.comment.delete({
-      where: { id },
-    });
+  async remove(role: Role, id: number, userId: number): Promise<void> {
+    const comment = await this.findOne({ id });
+    if (role === Role.Admin || comment.commenterId === userId) {
+      await this.prisma.comment.delete({
+        where: { id },
+      });
+    } else {
+      throw new UnauthorizedException(AUTH_ERRORS.CANT_DELETE);
+    }
   }
 }

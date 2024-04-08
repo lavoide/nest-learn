@@ -1,5 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Article } from '@prisma/client';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { Article, Prisma, User } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { PrismaService } from '../prisma.service';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -10,6 +15,9 @@ import {
   OrderDirectionConstants,
   PAGE_SIZE_ARTICLE,
 } from './articles.contsants';
+
+import { AUTH_ERRORS } from '../auth/auth.constants';
+import { Role } from '../auth/role/role.enum';
 
 @Injectable()
 export class ArticlesService {
@@ -25,9 +33,11 @@ export class ArticlesService {
     return this.prisma.article.findMany();
   }
 
-  async findOne(id: number): Promise<Article | null> {
+  async findOne(
+    articleWhereUniqueInput: Prisma.ArticleWhereUniqueInput,
+  ): Promise<Article | null> {
     const article = await this.prisma.article.findUnique({
-      where: { id },
+      where: articleWhereUniqueInput,
     });
     if (article) {
       return article;
@@ -81,33 +91,30 @@ export class ArticlesService {
     } as any);
   }
 
-  async update(id: number, data: UpdateArticleDto): Promise<Article> {
-    await this.prisma.article.findFirstOrThrow({
-      where: { id },
-    });
-    return this.prisma.article.update({
-      where: { id },
-      data,
-    });
+  async update(
+    user: User,
+    id: number,
+    data: UpdateArticleDto,
+  ): Promise<Article> {
+    const article = await this.findOne({ id });
+    if (user.role === Role.Admin || article.authorId === user.id) {
+      return this.prisma.article.update({
+        where: { id },
+        data,
+      });
+    } else {
+      throw new UnauthorizedException(AUTH_ERRORS.CANT_EDIT);
+    }
   }
 
-  async remove(id: number): Promise<Article> {
-    await this.prisma.article.findFirstOrThrow({
-      where: { id },
-    });
-
-    return this.prisma.article.delete({
-      where: { id },
-    });
-  }
-
-  async removeOwn(id: number, authorId: number): Promise<Article> {
-    await this.prisma.article.findFirstOrThrow({
-      where: { id, authorId },
-    });
-
-    return this.prisma.article.delete({
-      where: { id, authorId },
-    });
+  async remove(role: Role, id: number, userId: number): Promise<void> {
+    const article = await this.findOne({ id });
+    if (role === Role.Admin || article.authorId === userId) {
+      await this.prisma.article.delete({
+        where: { id },
+      });
+    } else {
+      throw new UnauthorizedException(AUTH_ERRORS.CANT_DELETE);
+    }
   }
 }

@@ -44,7 +44,7 @@ export class ArticlesController {
 
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Article> {
-    return this.articlesService.findOne(Number(id));
+    return this.articlesService.findOne({ id: Number(id) });
   }
 
   @Get('/by-user-id/:userId')
@@ -66,25 +66,25 @@ export class ArticlesController {
   update(
     @Param('id') id: string,
     @Body() updateArticleDto: UpdateArticleDto,
+    @Request() request: RequestWithUser,
   ): Promise<Article> {
-    return this.articlesService.update(Number(id), updateArticleDto);
+    return this.articlesService.update(
+      request.user,
+      Number(id),
+      updateArticleDto,
+    );
   }
 
   @Delete(':id')
-  @UseGuards(RoleGuard([Role.Admin]))
   @UseGuards(JwtAuthGuard)
-  remove(@Param('id') id: string): Promise<Article> {
-    return this.articlesService.remove(Number(id));
-  }
-
-  @Delete('delete-own/:id')
-  @UseGuards(RoleGuard([Role.Admin, Role.User]))
-  @UseGuards(JwtAuthGuard)
-  removeOwn(
+  remove(
     @Request() request: RequestWithUser,
     @Param('id') id: string,
-  ): Promise<Article> {
-    console.log(request.user);
-    return this.articlesService.removeOwn(Number(id), Number(request.user.id));
+  ): Promise<void> {
+    return this.articlesService.remove(
+      request.user.role as Role,
+      Number(id),
+      Number(request.user.id),
+    );
   }
 }

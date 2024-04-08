@@ -17,7 +17,9 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CommentQueryDto } from './dto/comment-query.dto';
 import { JwtAuthGuard } from '../auth/jwt/jwtAuth.guard';
-import RequestWithUser from 'src/auth/requestWithUser.interface';
+import RequestWithUser from '../auth/requestWithUser.interface';
+import RoleGuard from '../auth/role/role.guard';
+import { Role } from '../auth/role/role.enum';
 
 @Controller('comments')
 @ApiTags('Comments')
@@ -42,7 +44,7 @@ export class CommentsController {
 
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Comment> {
-    return this.commentsService.findOne(Number(id));
+    return this.commentsService.findOne({ id: Number(id) });
   }
 
   @Get('/by-article-id/:articleId')
@@ -61,12 +63,25 @@ export class CommentsController {
   update(
     @Param('id') id: string,
     @Body() updateCommentDto: UpdateCommentDto,
+    @Request() request: RequestWithUser,
   ): Promise<Comment> {
-    return this.commentsService.update(Number(id), updateCommentDto);
+    return this.commentsService.update(
+      request.user,
+      Number(id),
+      updateCommentDto,
+    );
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<Comment> {
-    return this.commentsService.remove(Number(id));
+  @UseGuards(JwtAuthGuard)
+  remove(
+    @Request() request: RequestWithUser,
+    @Param('id') id: string,
+  ): Promise<void> {
+    return this.commentsService.remove(
+      request.user.role as Role,
+      Number(id),
+      Number(request.user.id),
+    );
   }
 }
