@@ -4,6 +4,8 @@ export const AUTH_ERRORS = {
   SOMETHING_WRONG: 'Something went wrong',
   WRONG_CREDS: 'Wrong credentials provided',
   INVALID_TOKEN: 'Invalid token',
+  CANT_DELETE: 'You are not authorized to delete this record',
+  CANT_EDIT: 'You are not authorized to edit this record',
 };
 
 export const JWT_PUBLIC = {

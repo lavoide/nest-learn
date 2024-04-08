@@ -49,12 +49,7 @@ export class UsersService {
     data: UpdateUserDto;
   }): Promise<User> {
     const { where, data } = params;
-    const existingUser = await this.prisma.user.findUnique({
-      where,
-    });
-    if (!existingUser) {
-      throw new HttpException(USER_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
-    }
+    await this.findOne(where);
     return this.prisma.user.update({
       data,
       where,
@@ -62,12 +57,7 @@ export class UsersService {
   }
 
   async remove(where: Prisma.UserWhereUniqueInput) {
-    const existingUser = await this.prisma.user.findUnique({
-      where,
-    });
-    if (!existingUser) {
-      throw new HttpException(USER_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
-    }
+    await this.findOne(where);
     await this.prisma.user.delete({
       where,
     });
