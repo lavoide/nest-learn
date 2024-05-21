@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, MaxLength, MinLength } from 'class-validator';
+import { Role } from 'src/auth/role/role.enum';
 
 export class UserDto {
   @ApiProperty()
@@ -20,4 +21,7 @@ export class UserDto {
 
   @ApiProperty()
   refreshToken?: string;
+
+  @ApiProperty()
+  role?: Role;
 }

@@ -6,12 +6,16 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { User } from '@prisma/client';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiTags } from '@nestjs/swagger';
-import { User } from '@prisma/client';
+import RoleGuard from '../auth/role/role.guard';
+import { Role } from '../auth/role/role.enum';
+import { JwtAuthGuard } from '../auth/jwt/jwtAuth.guard';
 
 @Controller('users')
 @ApiTags('Users')
@@ -24,6 +28,8 @@ export class UsersController {
   }
 
   @Get()
+  @UseGuards(RoleGuard([Role.Admin]))
+  @UseGuards(JwtAuthGuard)
   findAll(): Promise<User[]> {
     return this.usersService.findAll({});
   }
