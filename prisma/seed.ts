@@ -129,7 +129,7 @@ async function main() {
     // await clearDatabase();
 
     // Seed the database
-    await seedDatabase();
+    // await seedDatabase();
 
     console.log('Database cleared and seeded successfully');
   } catch (error) {
