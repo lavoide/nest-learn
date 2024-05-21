@@ -18,7 +18,7 @@ export class AuthService {
       const lowerCasedEmail = email.toLowerCase();
       const user = await this.usersService.findOne({ email: lowerCasedEmail });
       await this.verifyPassword(password, user.password);
-      const payload = { id: user.id, email };
+      const payload = { id: user.id, email, role: user.role };
       const access_token = await this.jwtService.signAsync(payload);
       return `Authentication=${access_token}; HttpOnly; Path=/; Max-Age=${JWT_PUBLIC.EXPIRE_TIME}`;
     } catch (error) {
@@ -29,7 +29,7 @@ export class AuthService {
   public async refreshLogin(email: string) {
     const lowerCasedEmail = email.toLowerCase();
     const user = await this.usersService.findOne({ email: lowerCasedEmail });
-    const payload = { id: user.id, email };
+    const payload = { id: user.id, email, role: user.role };
     const access_token = await this.jwtService.signAsync(payload, {
       secret: JWT_CONSTANTS.REFRESH_SECRET,
       expiresIn: JWT_PUBLIC.REFRESH_EXPIRE_TIME,

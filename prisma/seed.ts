@@ -1,8 +1,12 @@
 // seed.ts
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import { CreateArticleDto } from 'src/articles/dto/create-article.dto';
 import { CreateBookDto } from 'src/books/dto/create-book.dto';
 import { CreateCategoryDto } from 'src/categories/dto/create-category.dto';
+import { CreateCommentDto } from 'src/comments/dto/create-comment.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { Role } from '../src/auth/role/role.enum';
 
 const prisma = new PrismaClient();
 
@@ -11,14 +15,30 @@ async function clearDatabase() {
   await prisma.bookCategory.deleteMany({});
   await prisma.book.deleteMany({});
   await prisma.category.deleteMany({});
+  await prisma.comment.deleteMany({});
+  await prisma.article.deleteMany({});
   await prisma.user.deleteMany({});
 }
 
 async function seedDatabase() {
   // Seed data for Users
   const users: CreateUserDto[] = [
-    { email: 'john@example.com', name: 'John Doe', password: 'test' },
-    { email: 'jane@example.com', name: 'Jane Doe', password: 'test' },
+    {
+      email: 'john@example.com',
+      name: 'John Doe',
+      password: await bcrypt.hash('test', 10),
+    },
+    {
+      email: 'jane@example.com',
+      name: 'Jane Doe',
+      password: await bcrypt.hash('test', 10),
+    },
+    {
+      email: 'admin@admin.com',
+      name: 'Admin',
+      password: await bcrypt.hash('admin123', 10),
+      role: Role.Admin,
+    },
   ];
 
   // Seed data for Categories
@@ -76,6 +96,30 @@ async function seedDatabase() {
     ],
   });
 
+  const articles: CreateArticleDto[] = [];
+  const numObjects = 8;
+  for (let i = 0; i < numObjects; i++) {
+    articles.push({
+      title: `Science${i === 0 ? '' : i}`,
+      content: `text${i === 0 ? '' : i}`,
+      authorId: createdUsers[0].id,
+    });
+  }
+
+  await prisma.article.createMany({ data: articles });
+  const createdArticles = await prisma.article.findMany({});
+
+  const comments: CreateCommentDto[] = [];
+  for (let i = 0; i < numObjects; i++) {
+    comments.push({
+      text: `Comment${i === 0 ? '' : i}`,
+      commenterId: createdUsers[0].id,
+      articleId: createdArticles[0].id,
+    });
+  }
+
+  await prisma.comment.createMany({ data: comments });
+
   console.log('Seed data inserted successfully');
 }
 
@@ -85,6 +129,7 @@ async function main() {
     await clearDatabase();
 
     // Seed the database
+    await seedDatabase();
 
     console.log('Database cleared and seeded successfully');
   } catch (error) {
