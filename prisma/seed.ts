@@ -102,7 +102,7 @@ async function seedDatabase() {
     articles.push({
       title: `Science${i === 0 ? '' : i}`,
       content: `text${i === 0 ? '' : i}`,
-      authorId: createdUsers[0].id,
+      authorId: createdUsers[2].id,
     });
   }
 
@@ -126,10 +126,10 @@ async function seedDatabase() {
 async function main() {
   try {
     // Clear the database
-    // await clearDatabase();
+    await clearDatabase();
 
     // Seed the database
-    // await seedDatabase();
+    await seedDatabase();
 
     console.log('Database cleared and seeded successfully');
   } catch (error) {
