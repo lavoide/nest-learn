@@ -6,6 +6,7 @@ import { BookCategoriesModule } from './book-categories/book-categories.module';
 import { AuthModule } from './auth/auth.module';
 import { ArticlesModule } from './articles/articles.module';
 import { CommentsModule } from './comments/comments.module';
+import { FilesModule } from './files/files.module';
 @Module({
   imports: [
     UsersModule,
@@ -15,6 +16,7 @@ import { CommentsModule } from './comments/comments.module';
     AuthModule,
     ArticlesModule,
     CommentsModule,
+    FilesModule,
   ],
   controllers: [],
   providers: [],
