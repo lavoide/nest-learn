@@ -9,8 +9,10 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { UsersService } from './users.service';
@@ -19,6 +21,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import RoleGuard from '../auth/role/role.guard';
 import { Role } from '../auth/role/role.enum';
 import { JwtAuthGuard } from '../auth/jwt/jwtAuth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
 @ApiTags('Users')
@@ -28,15 +31,6 @@ export class UsersController {
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
-  }
-
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    console.log(file);
-    return {
-      file,
-    };
   }
 
   @Get()
@@ -59,6 +53,26 @@ export class UsersController {
     return this.usersService.update({
       where: { id: Number(id) },
       data: updateUserDto,
+    });
+  }
+
+  @Patch('/addAvatar/:id')
+  @UseInterceptors(FileInterceptor('file'))
+  addAvatar(
+    @Param('id') id: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 10000000 }),
+          new FileTypeValidator({ fileType: /image\/(jpg|jpeg|png)/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<User> {
+    return this.usersService.addAvatar({
+      where: { id: Number(id) },
+      data: file,
     });
   }
 

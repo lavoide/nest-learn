@@ -10,6 +10,7 @@ import { LocalStrategy } from './local/local.strategy';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { AuthController } from './auth.controller';
 import { JwtRefreshStrategy } from './jwt/jwt-refresh.strategy';
+import { FilesService } from 'src/files/files.service';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { JwtRefreshStrategy } from './jwt/jwt-refresh.strategy';
     AuthService,
     UsersService,
     PrismaService,
+    FilesService,
     LocalStrategy,
     JwtStrategy,
     JwtRefreshStrategy,
