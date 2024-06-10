@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { BooksModule } from './books/books.module';
 import { CategoriesModule } from './categories/categories.module';
@@ -9,6 +10,7 @@ import { CommentsModule } from './comments/comments.module';
 import { FilesModule } from './files/files.module';
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     UsersModule,
     BooksModule,
     CategoriesModule,

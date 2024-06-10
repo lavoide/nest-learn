@@ -33,6 +33,22 @@ export class FilesController {
     return this.filesService.create(file);
   }
 
+  @Post('upload-aws')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadPublicFile(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 10000000 }),
+          new FileTypeValidator({ fileType: /image\/(jpg|jpeg|png)/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    return this.filesService.createPublic(file);
+  }
+
   @Get()
   findAll() {
     return this.filesService.findAll();
@@ -46,5 +62,10 @@ export class FilesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.filesService.remove({ id: Number(id) });
+  }
+
+  @Delete('/public/:id')
+  removePublic(@Param('id') id: string) {
+    return this.filesService.removePublic({ id: Number(id) });
   }
 }
