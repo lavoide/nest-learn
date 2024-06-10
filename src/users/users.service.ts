@@ -4,7 +4,7 @@ import { PrismaService } from '../prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { USER_ERRORS } from './users.contsants';
-import { FilesService } from 'src/files/files.service';
+import { FilesService } from '../files/files.service';
 
 @Injectable()
 export class UsersService {
@@ -72,6 +72,38 @@ export class UsersService {
     if (user) {
       return await this.prisma.user.update({
         data: { avatarId: file.id },
+        where,
+      });
+    }
+    throw new HttpException(USER_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
+  }
+
+  async addAvatarPublic(params: {
+    where: Prisma.UserWhereUniqueInput;
+    data: Express.Multer.File;
+  }) {
+    const { where, data } = params;
+    const file = await this.filesService.createPublic(data);
+    const user = await this.prisma.user.findUnique({
+      where,
+    });
+    if (user) {
+      return await this.prisma.user.update({
+        data: { publicFileId: file.id },
+        where,
+      });
+    }
+    throw new HttpException(USER_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
+  }
+
+  async removeAvatarPublic(where: Prisma.UserWhereUniqueInput) {
+    const user = await this.prisma.user.findUnique({
+      where,
+    });
+    if (user) {
+      await this.filesService.removePublic({ id: user.publicFileId });
+      return await this.prisma.user.update({
+        data: { publicFileId: null },
         where,
       });
     }

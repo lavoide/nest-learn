@@ -11,17 +11,19 @@ datasource db {
 }
 
 model User {
-  id           Int       @id @default(autoincrement())
-  email        String    @unique
+  id           Int         @id @default(autoincrement())
+  email        String      @unique
   name         String?
-  role         Role      @default(USER)
+  role         Role        @default(USER)
   password     String
   refreshToken String?
   books        Book[]
   Article      Article[]
   Comment      Comment[]
-  avatar       File?     @relation(fields: [avatarId], references: [id])
-  avatarId     Int?      @unique
+  avatar       File?       @relation(fields: [avatarId], references: [id])
+  avatarId     Int?        @unique
+  publicFile   PublicFile? @relation(fields: [publicFileId], references: [id])
+  publicFileId Int?        @unique
 }
 
 model Book {
@@ -78,6 +80,14 @@ model File {
   mimetype  String
   size      Int
   data      Bytes
+  createdAt DateTime @default(now())
+  user      User?
+}
+
+model PublicFile {
+  id        Int      @id @default(autoincrement())
+  url       String
+  key       String
   createdAt DateTime @default(now())
   user      User?
 }
