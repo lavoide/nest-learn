@@ -10,7 +10,7 @@ import { LocalStrategy } from './local/local.strategy';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { AuthController } from './auth.controller';
 import { JwtRefreshStrategy } from './jwt/jwt-refresh.strategy';
-import { FilesService } from 'src/files/files.service';
+import { FilesModule } from 'src/files/files.module';
 
 @Module({
   imports: [
@@ -20,13 +20,13 @@ import { FilesService } from 'src/files/files.service';
       signOptions: { expiresIn: JWT_PUBLIC.EXPIRE_TIME },
     }),
     PassportModule,
+    FilesModule,
   ],
   controllers: [AuthController],
   providers: [
     AuthService,
     UsersService,
     PrismaService,
-    FilesService,
     LocalStrategy,
     JwtStrategy,
     JwtRefreshStrategy,

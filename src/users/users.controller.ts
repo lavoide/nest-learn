@@ -56,7 +56,7 @@ export class UsersController {
     });
   }
 
-  @Patch('/addAvatar/:id')
+  @Patch('/add-avatar/:id')
   @UseInterceptors(FileInterceptor('file'))
   addAvatar(
     @Param('id') id: string,
@@ -76,8 +76,33 @@ export class UsersController {
     });
   }
 
+  @Patch('/add-avatar-public/:id')
+  @UseInterceptors(FileInterceptor('file'))
+  addAvatarPublic(
+    @Param('id') id: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 10000000 }),
+          new FileTypeValidator({ fileType: /image\/(jpg|jpeg|png)/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<User> {
+    return this.usersService.addAvatarPublic({
+      where: { id: Number(id) },
+      data: file,
+    });
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string): Promise<void> {
     return this.usersService.remove({ id: Number(id) });
+  }
+
+  @Post('/remove-avatar-public/:id')
+  removePublicAvatar(@Param('id') id: string): Promise<User> {
+    return this.usersService.removeAvatarPublic({ id: Number(id) });
   }
 }
