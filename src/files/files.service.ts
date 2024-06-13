@@ -82,7 +82,6 @@ export class FilesService {
 
   async removePublic(where: Prisma.PublicFileWhereUniqueInput) {
     const publicFile = await this.findOnePublic(where);
-    console.log(where, publicFile);
 
     const params = {
       Bucket: this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
