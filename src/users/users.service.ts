@@ -88,6 +88,9 @@ export class UsersService {
       where,
     });
     if (user) {
+      if (user.publicFileId) {
+        await this.filesService.removePublic({ id: user.publicFileId });
+      }
       return await this.prisma.user.update({
         data: { publicFileId: file.id },
         where,
@@ -100,7 +103,7 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({
       where,
     });
-    if (user) {
+    if (user.publicFileId) {
       await this.filesService.removePublic({ id: user.publicFileId });
       return await this.prisma.user.update({
         data: { publicFileId: null },
@@ -108,6 +111,17 @@ export class UsersService {
       });
     }
     throw new HttpException(USER_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
+  }
+
+  async removeAvatar(where: Prisma.UserWhereUniqueInput) {
+    const user = await this.findOne(where);
+    if (user.avatarId) {
+      await this.filesService.remove({ id: user.avatarId });
+      return await this.prisma.user.update({
+        data: { avatarId: null },
+        where,
+      });
+    }
   }
 
   async remove(where: Prisma.UserWhereUniqueInput) {
