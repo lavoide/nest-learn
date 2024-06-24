@@ -31,7 +31,12 @@ export class JwtRefreshStrategy extends PassportStrategy(
       user.refreshToken,
     );
     if (isRefreshTokenMatching) {
-      return { id: payload.id, email: payload.email, role: payload.role };
+      return {
+        id: payload.id,
+        name: user.name,
+        email: payload.email,
+        role: payload.role,
+      };
     }
   }
 }

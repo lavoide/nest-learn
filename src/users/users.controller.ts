@@ -7,6 +7,11 @@ import {
   Param,
   Delete,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from '@prisma/client';
@@ -16,6 +21,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import RoleGuard from '../auth/role/role.guard';
 import { Role } from '../auth/role/role.enum';
 import { JwtAuthGuard } from '../auth/jwt/jwtAuth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
 @ApiTags('Users')
@@ -50,8 +56,53 @@ export class UsersController {
     });
   }
 
+  @Patch('/add-avatar/:id')
+  @UseInterceptors(FileInterceptor('file'))
+  addAvatar(
+    @Param('id') id: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 10000000 }),
+          new FileTypeValidator({ fileType: /image\/(jpg|jpeg|png)/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<User> {
+    return this.usersService.addAvatar({
+      where: { id: Number(id) },
+      data: file,
+    });
+  }
+
+  @Patch('/add-avatar-public/:id')
+  @UseInterceptors(FileInterceptor('file'))
+  addAvatarPublic(
+    @Param('id') id: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 10000000 }),
+          new FileTypeValidator({ fileType: /image\/(jpg|jpeg|png)/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<User> {
+    return this.usersService.addAvatarPublic({
+      where: { id: Number(id) },
+      data: file,
+    });
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string): Promise<void> {
     return this.usersService.remove({ id: Number(id) });
+  }
+
+  @Post('/remove-avatar-public/:id')
+  removePublicAvatar(@Param('id') id: string): Promise<User> {
+    return this.usersService.removeAvatarPublic({ id: Number(id) });
   }
 }

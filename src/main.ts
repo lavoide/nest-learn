@@ -6,6 +6,12 @@ import { DOCUMENT_BUILDER_CONFIG_JWT } from './auth/auth.constants';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({
+    origin: function (origin, callback) {
+      callback(null, true);
+    },
+    credentials: true,
+  });
   app.use(cookieParser());
 
   const config = new DocumentBuilder()
@@ -17,7 +23,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(3000);
+  await app.listen(3003);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
