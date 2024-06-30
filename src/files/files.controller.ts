@@ -1,7 +1,7 @@
 import {
   Controller,
   Get,
-  Res,
+  Request,
   Post,
   Param,
   Delete,
@@ -12,11 +12,14 @@ import {
   FileTypeValidator,
   StreamableFile,
   Header,
+  UseGuards,
 } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { createReadStream } from 'fs';
 import { join } from 'path';
+import { JwtAuthGuard } from 'src/auth/jwt/jwtAuth.guard';
+import RequestWithUser from 'src/auth/requestWithUser.interface';
 
 @Controller('files')
 export class FilesController {
@@ -60,6 +63,24 @@ export class FilesController {
     file: Express.Multer.File,
   ) {
     return this.filesService.createPublic(file);
+  }
+
+  @Post('upload-aws-private')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  uploadPrivateFile(
+    @Request() request: RequestWithUser,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 10000000 }),
+          new FileTypeValidator({ fileType: /image\/(jpg|jpeg|png)/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    return this.filesService.createPrivate(file, Number(request.user.id));
   }
 
   @Get('get-all-files')

@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Request,
   Post,
   Body,
   Patch,
@@ -22,6 +23,7 @@ import RoleGuard from '../auth/role/role.guard';
 import { Role } from '../auth/role/role.enum';
 import { JwtAuthGuard } from '../auth/jwt/jwtAuth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
+import RequestWithUser from 'src/auth/requestWithUser.interface';
 
 @Controller('users')
 @ApiTags('Users')
@@ -43,6 +45,24 @@ export class UsersController {
   @Get(':id')
   findOne(@Param('id') id: string): Promise<User> {
     return this.usersService.findOne({ id: Number(id) });
+  }
+
+  @Patch('/add-file-private')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  addFilePrivate(
+    @Request() request: RequestWithUser,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 10000000 }),
+          new FileTypeValidator({ fileType: /image\/(jpg|jpeg|png)/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<void> {
+    return this.usersService.addFilePrivate(Number(request.user.id), file);
   }
 
   @Patch(':id')

@@ -49,6 +49,24 @@ export class FilesService {
     return newFile;
   }
 
+  async createPrivate(file: Express.Multer.File, ownerId: number) {
+    const uploadResult = await this.s3
+      .upload({
+        Bucket: this.configService.get('AWS_PRIVATE_BUCKET_NAME'),
+        Body: file.buffer,
+        Key: `${uuid()}-privatefile.${file.originalname.split('.')[1]}`,
+      })
+      .promise();
+
+    const newFile = await this.prisma.privateFile.create({
+      data: {
+        key: uploadResult.Key,
+        ownerId,
+      },
+    });
+    return newFile;
+  }
+
   async findAll() {
     return await this.prisma.file.findMany();
   }

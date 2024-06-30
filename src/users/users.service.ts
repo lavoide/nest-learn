@@ -84,25 +84,23 @@ export class UsersService {
   }) {
     const { where, data } = params;
     const file = await this.filesService.createPublic(data);
-    const user = await this.prisma.user.findUnique({
+    const user = await this.findOne(where);
+    if (user.publicFileId) {
+      await this.filesService.removePublic({ id: user.publicFileId });
+    }
+    return await this.prisma.user.update({
+      data: { publicFileId: file.id },
       where,
     });
-    if (user) {
-      if (user.publicFileId) {
-        await this.filesService.removePublic({ id: user.publicFileId });
-      }
-      return await this.prisma.user.update({
-        data: { publicFileId: file.id },
-        where,
-      });
-    }
-    throw new HttpException(USER_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
+  }
+
+  async addFilePrivate(ownerId: number, data: Express.Multer.File) {
+    await this.findOne({ id: ownerId });
+    await this.filesService.createPrivate(data, ownerId);
   }
 
   async removeAvatarPublic(where: Prisma.UserWhereUniqueInput) {
-    const user = await this.prisma.user.findUnique({
-      where,
-    });
+    const user = await this.findOne(where);
     if (user.publicFileId) {
       await this.filesService.removePublic({ id: user.publicFileId });
       return await this.prisma.user.update({
@@ -110,7 +108,6 @@ export class UsersService {
         where,
       });
     }
-    throw new HttpException(USER_ERRORS.NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   async removeAvatar(where: Prisma.UserWhereUniqueInput) {
