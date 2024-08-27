@@ -1,6 +1,6 @@
 // seed.ts
 import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { CreateArticleDto } from 'src/articles/dto/create-article.dto';
 import { CreateBookDto } from 'src/books/dto/create-book.dto';
 import { CreateCategoryDto } from 'src/categories/dto/create-category.dto';
@@ -21,7 +21,7 @@ async function clearDatabase() {
 }
 
 async function seedDatabase() {
-  // Seed data for Users
+  // Seed data for Userss
   const users: CreateUserDto[] = [
     {
       email: 'john@example.com',
