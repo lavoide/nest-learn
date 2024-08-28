@@ -20,8 +20,10 @@ import { createReadStream } from 'fs';
 import { join } from 'path';
 import { JwtAuthGuard } from 'src/auth/jwt/jwtAuth.guard';
 import RequestWithUser from 'src/auth/requestWithUser.interface';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('files')
+@ApiTags('Files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
