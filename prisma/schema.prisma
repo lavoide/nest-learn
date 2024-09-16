@@ -11,15 +11,20 @@ datasource db {
 }
 
 model User {
-  id           Int       @id @default(autoincrement())
-  email        String    @unique
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
   name         String?
-  role         Role      @default(USER)
+  role         Role          @default(USER)
   password     String
   refreshToken String?
   books        Book[]
   Article      Article[]
   Comment      Comment[]
+  avatar       File?         @relation(fields: [avatarId], references: [id])
+  avatarId     Int?          @unique
+  publicFile   PublicFile?   @relation(fields: [publicFileId], references: [id])
+  publicFileId Int?          @unique
+  PrivateFile  PrivateFile[]
 }
 
 model Book {
@@ -68,6 +73,32 @@ model Comment {
   commenterId Int
   article     Article  @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   articleId   Int
+}
+
+model File {
+  id        Int      @id @default(autoincrement())
+  filename  String
+  mimetype  String
+  size      Int
+  data      Bytes
+  createdAt DateTime @default(now())
+  user      User?
+}
+
+model PublicFile {
+  id        Int      @id @default(autoincrement())
+  url       String
+  key       String
+  createdAt DateTime @default(now())
+  user      User?
+}
+
+model PrivateFile {
+  id        Int      @id @default(autoincrement())
+  key       String
+  createdAt DateTime @default(now())
+  owner     User?    @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  ownerId   Int
 }
 
 enum Role {

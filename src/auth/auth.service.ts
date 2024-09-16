@@ -1,4 +1,4 @@
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
@@ -18,9 +18,9 @@ export class AuthService {
       const lowerCasedEmail = email.toLowerCase();
       const user = await this.usersService.findOne({ email: lowerCasedEmail });
       await this.verifyPassword(password, user.password);
-      const payload = { id: user.id, email, role: user.role };
+      const payload = { id: user.id, name: user.name, email, role: user.role };
       const access_token = await this.jwtService.signAsync(payload);
-      return `Authentication=${access_token}; HttpOnly; Path=/; Max-Age=${JWT_PUBLIC.EXPIRE_TIME}`;
+      return `Authentication=${access_token}; HttpOnly; Path=/; Max-Age=${JWT_PUBLIC.EXPIRE_TIME}; Secure; SameSite=None`;
     } catch (error) {
       throw new HttpException(AUTH_ERRORS.WRONG_CREDS, HttpStatus.BAD_REQUEST);
     }
@@ -29,12 +29,12 @@ export class AuthService {
   public async refreshLogin(email: string) {
     const lowerCasedEmail = email.toLowerCase();
     const user = await this.usersService.findOne({ email: lowerCasedEmail });
-    const payload = { id: user.id, email, role: user.role };
+    const payload = { id: user.id, name: user.name, email, role: user.role };
     const access_token = await this.jwtService.signAsync(payload, {
       secret: JWT_CONSTANTS.REFRESH_SECRET,
       expiresIn: JWT_PUBLIC.REFRESH_EXPIRE_TIME,
     });
-    const cookie = `Refresh=${access_token}; HttpOnly; Path=/; Max-Age=${JWT_PUBLIC.REFRESH_EXPIRE_TIME}`;
+    const cookie = `Refresh=${access_token}; HttpOnly; Path=/; Max-Age=${JWT_PUBLIC.REFRESH_EXPIRE_TIME}; Secure; SameSite=None`;
     return {
       refreshCookie: cookie,
       token: access_token,

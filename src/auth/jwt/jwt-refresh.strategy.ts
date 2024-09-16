@@ -1,7 +1,7 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JWT_CONSTANTS } from './jwt.constants';
 import { UsersService } from '../../users/users.service';
@@ -31,7 +31,12 @@ export class JwtRefreshStrategy extends PassportStrategy(
       user.refreshToken,
     );
     if (isRefreshTokenMatching) {
-      return { id: payload.id, email: payload.email, role: payload.role };
+      return {
+        id: payload.id,
+        name: user.name,
+        email: payload.email,
+        role: payload.role,
+      };
     }
   }
 }
