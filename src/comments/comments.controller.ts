@@ -18,7 +18,6 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CommentQueryDto } from './dto/comment-query.dto';
 import { JwtAuthGuard } from '../auth/jwt/jwtAuth.guard';
 import RequestWithUser from '../auth/requestWithUser.interface';
-import RoleGuard from '../auth/role/role.guard';
 import { Role } from '../auth/role/role.enum';
 
 @Controller('comments')

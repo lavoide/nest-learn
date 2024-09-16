@@ -17,7 +17,6 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticleQueryDto } from './dto/article-query.dto';
 import RequestWithUser from '../auth/requestWithUser.interface';
-import RoleGuard from '../auth/role/role.guard';
 import { Role } from '../auth/role/role.enum';
 import { JwtAuthGuard } from '../auth/jwt/jwtAuth.guard';
 

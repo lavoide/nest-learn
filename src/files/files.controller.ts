@@ -20,7 +20,8 @@ import { createReadStream } from 'fs';
 import { join } from 'path';
 import { JwtAuthGuard } from 'src/auth/jwt/jwtAuth.guard';
 import RequestWithUser from 'src/auth/requestWithUser.interface';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { FILE_CONSTANTS } from './files.contsants';
 
 @Controller('files')
 @ApiTags('Files')
@@ -36,6 +37,18 @@ export class FilesController {
   }
 
   @Post('upload')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(
     @UploadedFile(
@@ -52,13 +65,25 @@ export class FilesController {
   }
 
   @Post('upload-aws')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @UseInterceptors(FileInterceptor('file'))
   uploadPublicFile(
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 10000000 }),
-          new FileTypeValidator({ fileType: /image\/(jpg|jpeg|png)/ }),
+          new MaxFileSizeValidator({ maxSize: FILE_CONSTANTS.MAX_SIZE }),
+          new FileTypeValidator({ fileType: FILE_CONSTANTS.FILE_TYPE }),
         ],
       }),
     )
@@ -68,6 +93,18 @@ export class FilesController {
   }
 
   @Post('upload-aws-private')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   uploadPrivateFile(
@@ -75,8 +112,8 @@ export class FilesController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 10000000 }),
-          new FileTypeValidator({ fileType: /image\/(jpg|jpeg|png)/ }),
+          new MaxFileSizeValidator({ maxSize: FILE_CONSTANTS.MAX_SIZE }),
+          new FileTypeValidator({ fileType: FILE_CONSTANTS.FILE_TYPE }),
         ],
       }),
     )

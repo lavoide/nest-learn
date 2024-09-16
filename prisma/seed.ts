@@ -21,7 +21,7 @@ async function clearDatabase() {
 }
 
 async function seedDatabase() {
-  // Seed data for Userss
+  // Seed data for Users
   const users: CreateUserDto[] = [
     {
       email: 'john@example.com',

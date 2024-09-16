@@ -14,7 +14,8 @@ import {
   MaxFileSizeValidator,
   FileTypeValidator,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { User } from '@prisma/client';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -22,13 +23,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import RoleGuard from '../auth/role/role.guard';
 import { Role } from '../auth/role/role.enum';
 import { JwtAuthGuard } from '../auth/jwt/jwtAuth.guard';
-import { FileInterceptor } from '@nestjs/platform-express';
-import RequestWithUser from 'src/auth/requestWithUser.interface';
+import RequestWithUser from '../auth/requestWithUser.interface';
+import { FILE_CONSTANTS } from '../files/files.contsants';
 
 @Controller('users')
 @ApiTags('Users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -48,6 +49,18 @@ export class UsersController {
   }
 
   @Patch('/add-file-private')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   addFilePrivate(
@@ -55,8 +68,8 @@ export class UsersController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 10000000 }),
-          new FileTypeValidator({ fileType: /image\/(jpg|jpeg|png)/ }),
+          new MaxFileSizeValidator({ maxSize: FILE_CONSTANTS.MAX_SIZE }),
+          new FileTypeValidator({ fileType: FILE_CONSTANTS.FILE_TYPE }),
         ],
       }),
     )
@@ -77,14 +90,26 @@ export class UsersController {
   }
 
   @Patch('/add-avatar/:id')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @UseInterceptors(FileInterceptor('file'))
   addAvatar(
     @Param('id') id: string,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 10000000 }),
-          new FileTypeValidator({ fileType: /image\/(jpg|jpeg|png)/ }),
+          new MaxFileSizeValidator({ maxSize: FILE_CONSTANTS.MAX_SIZE }),
+          new FileTypeValidator({ fileType: FILE_CONSTANTS.FILE_TYPE }),
         ],
       }),
     )
@@ -97,14 +122,26 @@ export class UsersController {
   }
 
   @Patch('/add-avatar-public/:id')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @UseInterceptors(FileInterceptor('file'))
   addAvatarPublic(
     @Param('id') id: string,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 10000000 }),
-          new FileTypeValidator({ fileType: /image\/(jpg|jpeg|png)/ }),
+          new MaxFileSizeValidator({ maxSize: FILE_CONSTANTS.MAX_SIZE }),
+          new FileTypeValidator({ fileType: FILE_CONSTANTS.FILE_TYPE }),
         ],
       }),
     )
