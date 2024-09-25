@@ -25,11 +25,14 @@ import { Role } from '../auth/role/role.enum';
 import { JwtAuthGuard } from '../auth/jwt/jwtAuth.guard';
 import RequestWithUser from '../auth/requestWithUser.interface';
 import { FILE_CONSTANTS } from '../files/files.contsants';
+import { MailService } from '../mail/mail.service';
 
 @Controller('users')
 @ApiTags('Users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService,
+    private readonly mailService: MailService,
+  ) { }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -161,5 +164,21 @@ export class UsersController {
   @Post('/remove-avatar-public/:id')
   removePublicAvatar(@Param('id') id: string): Promise<User> {
     return this.usersService.removeAvatarPublic({ id: Number(id) });
+  }
+
+  @Post('/send-email')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        to: {
+          type: 'string',
+          format: 'text',
+        },
+      },
+    },
+  })
+  sendEmail(@Body() body: { to: string }): Promise<void> {
+    return this.mailService.sendEmail(body.to);
   }
 }
