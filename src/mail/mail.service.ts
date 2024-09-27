@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import * as nodemailerSendgrid from 'nodemailer-sendgrid';
+import * as nodemailerMailgun from 'nodemailer-mailgun-transport';
 import * as quotedPrintable from 'quoted-printable';
 
 @Injectable()
@@ -18,6 +19,13 @@ export class MailService {
       this.transporter = nodemailer.createTransport(nodemailerSendgrid({
         apiKey: process.env.SENDGRID_API_KEY
       }));
+    } else if (mailServiceMode === 'mailgun') {
+      this.transporter = nodemailer.createTransport(nodemailerMailgun({
+        auth: {
+          api_key: process.env.MAILGUN_API_KEY,
+          domain: process.env.MAILGUN_DOMAIN,
+        }
+      }));
     }
   }
   async sendEmail(to: string): Promise<void> {
@@ -27,11 +35,15 @@ export class MailService {
       subject: 'Password Reset Request',
       html: `This is a testing email`,
     };
-    const info = await this.transporter.sendMail(mailOptions);
-    if (process.env.MAIL_SERVICE_MODE === 'local') {
-      console.log('Local email content:', quotedPrintable.decode(info.message.toString()));
-    } else {
-      console.log('Email sent: %s', info.messageId);
+    try {
+      const info = await this.transporter.sendMail(mailOptions);
+      if (process.env.MAIL_SERVICE_MODE === 'local') {
+        console.log('Local email content:', quotedPrintable.decode(info.message.toString()));
+      } else {
+        console.log('Email sent: %s', info.messageId);
+      }
+    } catch (e) {
+      console.log(e);
     }
   }
 }
