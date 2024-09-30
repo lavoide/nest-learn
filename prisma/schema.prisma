@@ -25,6 +25,7 @@ model User {
   publicFile   PublicFile?   @relation(fields: [publicFileId], references: [id])
   publicFileId Int?          @unique
   PrivateFile  PrivateFile[]
+  doNotify     Boolean       @default(false)
 }
 
 model Book {

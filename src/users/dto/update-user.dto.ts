@@ -26,4 +26,7 @@ export class UpdateUserDto extends PartialType(UserDto) {
 
   @ApiProperty()
   role?: Role;
+
+  @ApiProperty()
+  doNotify?: boolean;
 }

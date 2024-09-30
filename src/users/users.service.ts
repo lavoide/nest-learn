@@ -5,13 +5,15 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { USER_ERRORS } from './users.contsants';
 import { FilesService } from '../files/files.service';
+import { TasksService } from 'src/tasks/tasks.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private prisma: PrismaService,
     private filesService: FilesService,
-  ) {}
+    private tasksService: TasksService
+  ) { }
 
   async create(data: CreateUserDto): Promise<User> {
     return this.prisma.user.create({
@@ -58,6 +60,20 @@ export class UsersService {
       data,
       where,
     });
+  }
+
+  async manageNotifications(where: Prisma.UserWhereUniqueInput, doNotify: boolean){
+    const updatedUser = await this.update({
+      where,
+      data: {
+        doNotify 
+      }
+    })
+    if(doNotify) {
+      this.tasksService.addCronJob(`Notify_${updatedUser.email}`, '30');
+    } else {
+      this.tasksService.deleteCron(`Notify_${updatedUser.email}`);
+    }
   }
 
   async addAvatar(params: {
