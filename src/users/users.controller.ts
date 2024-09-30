@@ -181,4 +181,19 @@ export class UsersController {
   sendEmail(@Body() body: { to: string }): Promise<void> {
     return this.mailService.sendEmail(body.to);
   }
+
+  @Post('/add-remove-notifications/:id')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        doNotify: {
+          type: 'boolean',
+        },
+      },
+    },
+  })
+  handleNotifications(@Param('id') id: string, @Body() body: { doNotify: boolean }): Promise<void> {
+    return this.usersService.manageNotifications({ id: Number(id) }, body.doNotify);
+  }
 }

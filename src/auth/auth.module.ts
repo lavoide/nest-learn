@@ -10,7 +10,8 @@ import { LocalStrategy } from './local/local.strategy';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { AuthController } from './auth.controller';
 import { JwtRefreshStrategy } from './jwt/jwt-refresh.strategy';
-import { FilesModule } from 'src/files/files.module';
+import { FilesModule } from '../files/files.module';
+import { TasksService } from '../tasks/tasks.service';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { FilesModule } from 'src/files/files.module';
     LocalStrategy,
     JwtStrategy,
     JwtRefreshStrategy,
+    TasksService
   ],
 })
 export class AuthModule {}
